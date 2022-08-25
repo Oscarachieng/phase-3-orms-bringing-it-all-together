@@ -20,13 +20,17 @@ class Dog
     end
     # #class Method to drop dogs table
     def self.drop_table
-        DB[:conn].execute("DROP TABLE IF EXISTS dog")
+        DB[:conn].execute("DROP TABLE IF EXISTS dogs")
     end
     #instance method to save a dog
     def save
-        DB[:conn].execute("INSERT INTO dogs (name,breed) VaALUES (?,?)", self.name,self.breed)
-        self.id = DB[:conn].execute("SELECT last_insert_rowid() FROM songs")[0][0]
-        self
+        if self.id
+            self.update
+        else    
+            DB[:conn].execute("INSERT INTO dogs (name,breed) VaALUES (?,?)", self.name,self.breed)
+            self.id = DB[:conn].execute("SELECT last_insert_rowid() FROM songs")[0][0]
+            self
+        end
     end
 
     #class method self.create
@@ -57,6 +61,11 @@ class Dog
        dog_by_id.map do |dog|
         self.new_from_db(dog)
        end
+    end
+    #update object method to update the dog row by id
+    def update 
+        sql = "UPDATE dogs SET name =?, breed = ? WHERE id = ?"
+        DB[:conn].execute(sql, self.name, self.breed, self.id)
     end
 
 end
